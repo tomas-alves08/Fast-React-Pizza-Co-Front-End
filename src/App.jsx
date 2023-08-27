@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import "./index.css";
 import Modals from "./components/Modals";
+import PizzaOrder from "./components/PizzaOrder";
 
 function App() {
   const [orderObj, setOrderObj] = useState({
@@ -15,9 +16,9 @@ function App() {
     "Pizza Prosciutto": "",
   });
   const [showModal, setShowModal] = useState(false);
-  console.log(showModal);
+  const [updatePage, setUpdatePage] = useState(false);
 
-  // if (showModal) return;
+  console.log(updatePage);
 
   return (
     <div className="container">
@@ -26,11 +27,15 @@ function App() {
           setShowModal={setShowModal}
           orderObj={orderObj}
           setOrderObj={setOrderObj}
+          updatePage={updatePage}
+          setUpdatePage={setUpdatePage}
         />
       )}
       <Header />
       <Menu orderObj={orderObj} setOrderObj={setOrderObj} />
+
       <Footer setShowModal={setShowModal} />
+      <PizzaOrder updatePage={updatePage} setUpdatePage={setUpdatePage} />
     </div>
   );
 }

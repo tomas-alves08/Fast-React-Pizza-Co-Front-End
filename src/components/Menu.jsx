@@ -11,8 +11,15 @@ function Menu({ orderObj, setOrderObj }) {
       [e.target.name]: {
         qty: e.target.value,
         cost: Number(e.target.value) * Number(e.target.getAttribute("price")),
+        price: Number(e.target.getAttribute("price")),
       },
     });
+
+    if (e.target.value === "")
+      setOrderObj({
+        ...orderObj,
+        [e.target.name]: "",
+      });
   };
 
   return (

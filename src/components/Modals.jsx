@@ -1,9 +1,45 @@
 import { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
+import { DateTime } from "luxon";
+import { Form } from "react-bootstrap";
+import { createOrder } from "../utils/PizzaOrderService";
 import "../index.css";
 
-function Modals({ setShowModal, orderObj, setOrderObj }) {
+function Modals({
+  setShowModal,
+  orderObj,
+  setOrderObj,
+  updatePage,
+  setUpdatePage,
+}) {
+  const getNow = () => DateTime.now().toFormat("yyyy-MM-dd'T'HH:mm");
+  const deliveryTimeInOneHour = DateTime.fromISO(getNow())
+    .plus({ hours: 1 })
+    .toFormat("yyyy-MM-dd'T'HH:mm");
+
   const [totalCost, setTotalCost] = useState(0);
+  const [pizzaArr, setPizzaArr] = useState([]);
+  const [deliveryTime, setDeliveryTime] = useState(deliveryTimeInOneHour);
+
+  // Set Delivery Time to one hour from now.
+
+  const [order, setOrder] = useState({
+    pizzaArr: [],
+    totalCost,
+    deliveryTime,
+  });
+
+  useEffect(() => {
+    const pizzasData = Object.entries(orderObj)
+      .filter((pizza) => pizza[1] !== "")
+      .map((pizza) => ({
+        name: pizza[0],
+        quantity: Number(pizza[1].qty),
+        price: pizza[1].price,
+      }));
+
+    setPizzaArr(pizzasData);
+  }, [orderObj]);
 
   useEffect(() => {
     const sum = Object.values(orderObj)
@@ -13,12 +49,25 @@ function Modals({ setShowModal, orderObj, setOrderObj }) {
     setTotalCost(sum);
   }, [orderObj]);
 
-  const handleClick = (e) => {
-    console.log(document.getElementById("modal-container"), e.target.id);
-    if (e.target.id === "modal-page") setShowModal(false);
+  const handleDeliveryTime = (e) => {
+    setDeliveryTime(e.target.value);
   };
 
+  useEffect(() => {
+    setOrder({
+      deliveryTime,
+      totalCost,
+      pizzaArr,
+    });
+  }, [deliveryTime, totalCost, pizzaArr]);
+
+  console.log("ORDER: ", order);
+  console.log("ORDER OBJ: ", orderObj);
+  // console.log("Pizzas", pizzas);
+
   const handleSubmit = () => {
+    createOrder(order);
+
     setOrderObj({
       Focaccia: "",
       "Pizza Spinaci": "",
@@ -28,6 +77,11 @@ function Modals({ setShowModal, orderObj, setOrderObj }) {
       "Pizza Prosciutto": "",
     });
     setShowModal(false);
+    setUpdatePage(!updatePage);
+  };
+
+  const handleClick = (e) => {
+    if (e.target.id === "modal-page") setShowModal(false);
   };
 
   return (
@@ -36,7 +90,7 @@ function Modals({ setShowModal, orderObj, setOrderObj }) {
         <h2 style={{ color: "black", fontSize: "2rem" }}>Confirm Order</h2>
         <hr style={{ marginBottom: "3rem" }} />
         {Object.entries(orderObj).map((pizza) => {
-          if (pizza[1] === "") return null;
+          if (pizza[1] === "" || pizza[1].qty === "0") return null;
           return (
             <div
               style={{
@@ -68,8 +122,17 @@ function Modals({ setShowModal, orderObj, setOrderObj }) {
               fontWeight: "bold",
             }}
           >
-            Total Cost: ${totalCost}
+            Total Cost: ${order.totalCost}
           </p>
+          <Form.Group className="mb-2 mt-2" controlId="formGroupDeliveryTime">
+            <Form.Label>Delivery Time</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              onChange={handleDeliveryTime}
+              name="date"
+              value={order.deliveryTime}
+            />
+          </Form.Group>
           <Button
             style={{
               background: "white",

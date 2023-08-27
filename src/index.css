@@ -114,6 +114,7 @@ body {
   width: 12rem;
   aspect-ratio: 1;
   align-self: start;
+  border-radius: 3px;
 }
 
 .pizza div {
