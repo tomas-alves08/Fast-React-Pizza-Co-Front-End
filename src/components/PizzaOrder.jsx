@@ -3,11 +3,16 @@ import { getOrders } from "../utils/PizzaOrderService";
 import { DateTime } from "luxon";
 import { FaPen, FaTrash } from "react-icons/fa";
 import { deleteOrder } from "../utils/PizzaOrderService";
+import ModalUpdate from "./ModalUpdate";
+import "../index.css";
 
 function PizzaOrder({ updatePage, setUpdatePage }) {
   const [pizzaOrders, setPizzaOrders] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleteStatus, setDeleteStatus] = useState(false);
+  const [updateOrder, setUpdateOrder] = useState({});
+  const [updateInput] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState("");
 
   async function loadOrders() {
     try {
@@ -28,7 +33,6 @@ function PizzaOrder({ updatePage, setUpdatePage }) {
   }, []);
 
   useEffect(() => {
-    console.log("CREATED ORDER!!");
     loadOrders();
   }, [deleteStatus, updatePage]);
 
@@ -53,27 +57,41 @@ function PizzaOrder({ updatePage, setUpdatePage }) {
     setDeleteStatus(true);
   }
 
-  //   Object.entries(orderGroup).map((item) => console.log(item));
+  useEffect(() => {
+    const newPizzaArr = updateOrder?.pizzaArr?.map((pizza) => {
+      if (pizza.id === updateInput.id) {
+        return { ...pizza, quantity: updateInput.quantity };
+      }
+      return pizza;
+    });
+    setUpdateOrder({ ...updateOrder, pizzaArr: newPizzaArr });
+  }, [updateInput]);
+
+  const spinner = (
+    <>
+      <div className="spinner" style={{ margin: "auto" }} />
+    </>
+  );
+
+  if (loading) return spinner;
 
   return (
     <div style={{ width: "100%" }}>
-      {loading ? (
-        <p>Loading...</p>
+      {updateStatus ? (
+        <ModalUpdate
+          updateStatus={updateStatus}
+          setUpdateStatus={setUpdateStatus}
+          setUpdatePage={setUpdatePage}
+        />
       ) : (
         <React.Fragment>
           <h1 style={{ textAlign: "center", marginTop: "2rem" }}>
             Pizza Orders
           </h1>
           <hr style={{ border: "solid 1px #808080", marginTop: "1.5rem" }} />
-          {orderGroup &&
+          {orderGroup ? (
             Object.entries(orderGroup).map((item) => (
-              <div
-                style={{
-                  margin: "4rem auto",
-                  width: "60%",
-                }}
-                key={item[0]}
-              >
+              <div className="order-container" key={item[0]}>
                 <h2 style={{ marginLeft: "1rem" }}>{item[0]}</h2>
                 {item[1].map((order) => {
                   const inputTimeStamp = order.deliveryTime;
@@ -81,67 +99,36 @@ function PizzaOrder({ updatePage, setUpdatePage }) {
                   const formattedTime = parsedDateTime.toFormat("HH:mm");
 
                   return (
-                    <div
-                      style={{
-                        border: "1px solid black",
-                        margin: "1rem",
-                        padding: "2rem",
-                        borderRadius: "5px",
-                        background: "#D3B784",
-                        textAlign: "right",
-                        fontSize: "1.3rem",
-                        boxShadow: "5px 5px 5px #888",
-                      }}
-                      key={order.id}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: "2rem",
-                        }}
-                      >
-                        <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-                          Delivery Time: {formattedTime}
-                        </p>
-                        <div
-                          style={{
-                            width: "25%",
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <p>Order# {order.id}</p>
-                          <div
+                    <div className="order-card-container" key={order.id}>
+                      <div className="order-card-title">
+                        <p className="order-number">Order# {order.id}</p>
+                        <div className="order-icons-container">
+                          <p
+                            onClick={() => setUpdateStatus(order.id)}
                             style={{
-                              width: "25%",
-                              display: "flex",
-                              justifyContent: "space-between",
+                              color: "purple",
+                              marginRight: "0.5rem",
                             }}
+                            className="order-icon"
                           >
-                            <p
-                              style={{ fontSize: "1.5rem", color: "purple" }}
-                              onClick={() => handleDelete(order.id)}
-                            >
-                              <FaPen />
-                            </p>
-                            <p style={{ fontSize: "1.5rem", color: "red" }}>
-                              <FaTrash />
-                            </p>
-                          </div>
+                            <FaPen />
+                          </p>
+                          <p
+                            onClick={() => handleDelete(order.id)}
+                            style={{
+                              color: "red",
+                            }}
+                            className="order-icon"
+                          >
+                            <FaTrash />
+                          </p>
                         </div>
                       </div>
+                      <p className="order-delivery-time">
+                        Delivery Time: {formattedTime}
+                      </p>
                       {order?.pizzaArr?.map((pizza) => (
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            fontSize: "1.5rem",
-                            width: "50%",
-                          }}
-                          key={pizza.id}
-                        >
+                        <div className="order-details-container" key={pizza.id}>
                           <p>
                             {pizza.quantity}x {pizza.name}
                           </p>
@@ -153,6 +140,7 @@ function PizzaOrder({ updatePage, setUpdatePage }) {
                           marginTop: "2rem",
                           fontSize: "1.6rem",
                           fontWeight: "bold",
+                          textAlign: "right",
                         }}
                       >
                         Total Cost: ${order.totalCost}
@@ -161,7 +149,18 @@ function PizzaOrder({ updatePage, setUpdatePage }) {
                   );
                 })}
               </div>
-            ))}
+            ))
+          ) : (
+            <p
+              style={{
+                textAlign: "center",
+                marginTop: "3rem",
+                fontSize: "2.5rem",
+              }}
+            >
+              No Existing Pizza Order
+            </p>
+          )}
         </React.Fragment>
       )}
     </div>

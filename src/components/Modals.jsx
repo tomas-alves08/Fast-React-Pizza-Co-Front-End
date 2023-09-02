@@ -5,13 +5,8 @@ import { Form } from "react-bootstrap";
 import { createOrder } from "../utils/PizzaOrderService";
 import "../index.css";
 
-function Modals({
-  setShowModal,
-  orderObj,
-  setOrderObj,
-  updatePage,
-  setUpdatePage,
-}) {
+function Modals({ setShowModal, orderObj, setOrderObj, setUpdatePage }) {
+  // Set Delivery Time to one hour from now.
   const getNow = () => DateTime.now().toFormat("yyyy-MM-dd'T'HH:mm");
   const deliveryTimeInOneHour = DateTime.fromISO(getNow())
     .plus({ hours: 1 })
@@ -20,8 +15,6 @@ function Modals({
   const [totalCost, setTotalCost] = useState(0);
   const [pizzaArr, setPizzaArr] = useState([]);
   const [deliveryTime, setDeliveryTime] = useState(deliveryTimeInOneHour);
-
-  // Set Delivery Time to one hour from now.
 
   const [order, setOrder] = useState({
     pizzaArr: [],
@@ -61,10 +54,6 @@ function Modals({
     });
   }, [deliveryTime, totalCost, pizzaArr]);
 
-  console.log("ORDER: ", order);
-  console.log("ORDER OBJ: ", orderObj);
-  // console.log("Pizzas", pizzas);
-
   const handleSubmit = () => {
     createOrder(order);
 
@@ -77,7 +66,7 @@ function Modals({
       "Pizza Prosciutto": "",
     });
     setShowModal(false);
-    setUpdatePage(!updatePage);
+    setUpdatePage(true);
   };
 
   const handleClick = (e) => {
@@ -124,8 +113,13 @@ function Modals({
           >
             Total Cost: ${order.totalCost}
           </p>
-          <Form.Group className="mb-2 mt-2" controlId="formGroupDeliveryTime">
-            <Form.Label>Delivery Time</Form.Label>
+          <Form.Group
+            style={{ marginBottom: "1rem" }}
+            controlId="formGroupDeliveryTime"
+          >
+            <Form.Label style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>
+              Delivery Time
+            </Form.Label>
             <Form.Control
               type="datetime-local"
               onChange={handleDeliveryTime}

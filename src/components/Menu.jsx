@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import Pizza from "./Pizza";
-import { pizzaData } from "./pizza-utils";
+import { getPizzas } from "../utils/PizzasService";
 import { Form, InputGroup } from "react-bootstrap";
 import "../index.css";
 
 function Menu({ orderObj, setOrderObj }) {
+  const [pizzaData, setPizzaData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useMemo(async () => {
+    const pizzas = await getPizzas();
+    setPizzaData(pizzas.data);
+    setLoading(false);
+  }, []);
+
   const handleChange = (e) => {
     setOrderObj({
       ...orderObj,
@@ -22,6 +31,14 @@ function Menu({ orderObj, setOrderObj }) {
       });
   };
 
+  const spinner = (
+    <>
+      <div className="spinner" style={{ margin: "auto" }} />
+    </>
+  );
+
+  if (loading) return spinner;
+
   return (
     <main className="menu">
       <h2>Our Menu</h2>
@@ -32,7 +49,7 @@ function Menu({ orderObj, setOrderObj }) {
           our stone oven, all organic, all delicious.
         </p>
         <ul className="pizzas">
-          {pizzaData.map((pizza) => {
+          {pizzaData?.map((pizza) => {
             const soldOut = pizza.soldOut;
             const valueItem = Object.entries(orderObj).find(
               (name) => name[0] === pizza.name

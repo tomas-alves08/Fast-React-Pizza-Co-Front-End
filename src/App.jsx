@@ -18,8 +18,6 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [updatePage, setUpdatePage] = useState(false);
 
-  console.log(updatePage);
-
   return (
     <div className="container">
       {showModal && (
@@ -27,14 +25,14 @@ function App() {
           setShowModal={setShowModal}
           orderObj={orderObj}
           setOrderObj={setOrderObj}
-          updatePage={updatePage}
           setUpdatePage={setUpdatePage}
         />
       )}
+
       <Header />
       <Menu orderObj={orderObj} setOrderObj={setOrderObj} />
 
-      <Footer setShowModal={setShowModal} />
+      <Footer setShowModal={setShowModal} orderObj={orderObj} />
       <PizzaOrder updatePage={updatePage} setUpdatePage={setUpdatePage} />
     </div>
   );
