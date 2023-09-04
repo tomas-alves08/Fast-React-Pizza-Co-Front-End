@@ -23,7 +23,7 @@ function ModalUpdate({ updateStatus, setUpdateStatus, setUpdatePage }) {
   }, [updateStatus]);
 
   const reducedOrderInfo = orderInfo?.reduce((acc, curInfo) => {
-    acc = [...acc, { ...curInfo, pizzaOrderId: updateStatus, id: -1 }];
+    acc = [...acc, { ...curInfo, pizzaOrderId: updateStatus, id: 0 }];
 
     for (const key of selectedOrder.pizzaArr) {
       if (curInfo.name === key.name) {
